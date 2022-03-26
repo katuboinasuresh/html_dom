@@ -12,7 +12,28 @@
 	<div id="container">
 
 	<!-- Start your code from here -->
+	<main>
+		<form class="form">
+			<div class="info">
+				<p><label class="label">characters:</label> <span class="count">00</span></p>
+				<p><label class="label">Threads:</label> <span class="threadcount">00</span></p>
+			</div>
+			<div class="container">
+				<textarea class="text" placeholder="the character limit for each thread is 275" required="" wrap="soft" onkeyup="textinfo(this)"></textarea>
+				<button type="submit" class="btn">Thread</button>
+			</div>
+		</form>
+		<div class="thread_box">
+			<div class="thread">
+				<span class="sl">✨</span>
+				<br>
+				Your threads will be here. 🔥 <br><br>
+				ℹ️ The character limit for each tweet is </span>
 
+			</div>
+			
+		</div>
+	</main>
 
 	<!-- End your code -->
 
@@ -20,6 +41,82 @@
 
 	<script type="text/javascript">
 	// write your javascript code here
+	const dom = (s)=>document.querySelector(s);
+	const form = dom('.form');
+	const char = dom('.count');
+	const threadcount = dom('.threadcount');
+	const threadbox = dom(".thread_box");
+
+	let size=275;
+	let threadArr = [];
+	function textinfo(event) {
+		var addition = event.value.length;
+		char.innerHTML = addition;
+		threadcount.innerHTML = Math.ceil(addition/size);
+		addition > size ?(event.style.color='red'):(event.style.color='green');
+	}
+	function displaythread(listparent,arr=[]){
+		listparent.innerHTML = arr.map((ele,i)=>{
+			return `
+			<article class='thread' data_index="${i}">
+				<div class="tools">
+					<span class="index">${i<9? '0'+(i+1):i+1}</span>
+					<span class='close' data_index="${i}">X</span>
+				</div>
+				<p class='thread_str'>${ele}</p>
+			</article>`
+		}).join("")
+	}
+	function cleanthread(str){
+		let splitonwhitespaces=str.split(" ");
+		let result=[];
+		let totallength=0;
+		let sentence="";
+		for(let i=0;i<splitonwhitespaces.length;i++){
+			let curword=splitonwhitespaces[i];
+			let cur_w_length=curword.length;
+			//build sentence
+			sentence+=curword+" ";
+			totallength+=cur_w_length+1;
+
+			if(totallength>=size){
+				sentence=sentence.trim();
+				let lengthdiff=sentence.length-size;
+				if(lengthdiff>0){
+					let lastindexofwhitespace=sentence.lastIndexOf(" ");
+					sentence=sentence.slice(0,lastindexofwhitespace);
+					i--;
+				}
+				result.push(sentence);
+				totallength=0;
+				sentence="";
+			}
+			if(i==splitonwhitespaces.length-1 && totallength<=size && sentence !==""){
+				result.push(sentence.trim());
+			}
+		}
+		return result;
+	}
+	function thread(e){
+		e.preventDefault();
+		const thread=dom(".thread");
+		threadArr = cleanthread(dom(".text").value);
+		displaythread(threadbox,threadArr)
+	}
+	//event
+	form.addEventListener("submit", thread)
+
+	function delethread(eve){
+		eve.preventDefault();
+		const [ele, index]=[eve.target,eve.target.dataset.index];
+		let text=eve.target.dataset.para;
+		if(ele.classList.contains("close")){
+			threadArr.splice(index,1);
+			displaythread(threadbox,threadArr);
+		}
+	}
+	threadbox.addEventListener("click", delethread);
+
 
 	</script>
 
